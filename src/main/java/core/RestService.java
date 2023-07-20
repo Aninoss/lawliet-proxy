@@ -14,6 +14,7 @@ public class RestService {
     private final static Logger LOGGER = LoggerFactory.getLogger(RestService.class);
 
     private final HttpClient httpClient = new HttpClient();
+    private final Ratelimiter ratelimiter = new Ratelimiter(2_050_000_000L);
 
     @GET
     @Path("/ping")
@@ -25,10 +26,13 @@ public class RestService {
     @GET
     @Path("/proxy/{url}/{auth}")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response proxy(@PathParam("url") String url, @PathParam("auth") String auth) {
+    public Response proxy(@PathParam("url") String url, @PathParam("auth") String auth) throws InterruptedException {
         try {
             if (!System.getenv("AUTH").equals(auth)) {
                 return Response.status(403).build();
+            }
+            if (url.startsWith("https://www.reddit.com")) {
+                Thread.sleep(ratelimiter.nextRequestRelative());
             }
 
             HttpResponse httpResponse = httpClient.request(url);
