@@ -6,6 +6,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class HttpClient {
@@ -17,13 +18,17 @@ public class HttpClient {
             .callTimeout(10, TimeUnit.SECONDS)
             .build();
 
-    public HttpResponse request(String url) {
+    public HttpResponse request(String url, List<String[]> headers) {
         String domain = url.split("/")[2];
-        Request request = new Request.Builder()
+        Request.Builder requestBuilder = new Request.Builder()
                 .url(url)
-                .header("User-Agent", USER_AGENT)
-                .build();
+                .header("User-Agent", USER_AGENT);
 
+        for (String[] header : headers) {
+            requestBuilder.header(header[0], header[1]);
+        }
+
+        Request request = requestBuilder.build();
         try (Response response = client.newCall(request).execute()) {
             return new HttpResponse()
                     .setCode(response.code())

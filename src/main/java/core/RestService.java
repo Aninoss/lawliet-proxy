@@ -7,6 +7,8 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 @Path("")
 @Singleton
 public class RestService {
@@ -27,15 +29,27 @@ public class RestService {
     @Path("/proxy/{url}/{auth}")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response proxy(@PathParam("url") String url, @PathParam("auth") String auth) throws InterruptedException {
+        return proxyWithHeader(url, auth, null);
+    }
+
+    @GET
+    @Path("/proxy/{url}/{auth}/{header}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response proxyWithHeader(@PathParam("url") String url, @PathParam("auth") String auth, @PathParam("header") String header) throws InterruptedException {
         try {
             if (!System.getenv("AUTH").equals(auth)) {
                 return Response.status(403).build();
             }
+
+            ArrayList<String[]> headers = new ArrayList<>();
             if (url.startsWith("https://www.reddit.com")) {
+                if (header != null) {
+                    headers.add(header.split(":"));
+                }
                 Thread.sleep(ratelimiter.nextRequestRelative());
             }
 
-            HttpResponse httpResponse = httpClient.request(url);
+            HttpResponse httpResponse = httpClient.request(url, headers);
             if (httpResponse.getCode() / 100 == 2) {
                 return Response.ok(httpResponse.getBody()).build();
             } else {
