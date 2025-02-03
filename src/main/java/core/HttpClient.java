@@ -6,6 +6,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InterruptedIOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +35,9 @@ public class HttpClient {
                     .setCode(response.code())
                     .setBody(response.body().string());
         } catch (Throwable e) {
-            LOGGER.error("Web error ({})", domain, e);
+            if (!(e instanceof InterruptedIOException)) {
+                LOGGER.error("Web error ({})", domain, e);
+            }
             return new HttpResponse()
                     .setCode(500);
         }
