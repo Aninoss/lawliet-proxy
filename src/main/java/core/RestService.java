@@ -16,7 +16,7 @@ public class RestService {
     private final static Logger LOGGER = LoggerFactory.getLogger(RestService.class);
 
     private final HttpClient httpClient = new HttpClient();
-    private final Ratelimiter ratelimiter = new Ratelimiter(2_100_000_000L);
+    private final Ratelimiter ratelimiter = new Ratelimiter(2_200_000_000L);
 
     @GET
     @Path("/ping")
