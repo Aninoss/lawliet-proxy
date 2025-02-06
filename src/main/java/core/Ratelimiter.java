@@ -16,4 +16,10 @@ public class Ratelimiter {
         return (int) (waitingTime / 1_000_000);
     }
 
+    public synchronized int peek() {
+        long currentTime = System.nanoTime();
+        long waitingTime = Math.max(0, nextRequest - currentTime);
+        return (int) (waitingTime / 1_000_000);
+    }
+
 }

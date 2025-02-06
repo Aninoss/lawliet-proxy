@@ -43,6 +43,10 @@ public class RestService {
 
             ArrayList<String[]> headers = new ArrayList<>();
             if (url.startsWith("https://www.reddit.com")) {
+                if (ratelimiter.peek() > 7000) {
+                    LOGGER.warn("Reddit ratelimiter exceeds 7000 ms");
+                    return Response.status(429).build();
+                }
                 if (header != null) {
                     headers.add(header.split(":"));
                 }
