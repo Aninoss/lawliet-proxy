@@ -27,7 +27,9 @@ public class NetworkChecker {
             LOGGER.error("Internet check error", e);
         }
 
-        LOGGER.info("Internet: " + (reachable ? "OK" : "Not OK"));
+        if (!reachable) {
+            LOGGER.info("Internet: Not OK");
+        }
     }
 
 
